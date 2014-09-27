@@ -1,0 +1,10 @@
+#npm
+node_modules/
+
+#bower
+demo/bower/
+
+#demo
+demo/jquery-wechat.js
+demo/jquery-wechat.min.js
+demo/jquery-wechat.min.js.map

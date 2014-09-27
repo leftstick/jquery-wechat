@@ -1,0 +1,26 @@
+{
+  "name": "jquery-wechat",
+  "version": "1.0.0",
+  "description": "A jquery plugin which provides handy tools for wechat",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/leftstick/jquery-wechat.git"
+  },
+  "keywords": [
+    "wechat",
+    "jquery-plugin"
+  ],
+  "author": "Howard.Zuo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/leftstick/jquery-wechat/issues"
+  },
+  "homepage": "https://github.com/leftstick/jquery-wechat",
+  "devDependencies": {
+    "gulp": "^3.8.8",
+    "gulp-rename": "^1.2.0",
+    "gulp-sourcemaps": "^1.2.2",
+    "gulp-uglify": "^1.0.1",
+    "gulp-webserver": "^0.8.2"
+  }
+}
