@@ -2,4 +2,23 @@
 node_modules
 
 #bower
+bower/amazeui/fonts/
+bower/amazeui/js/
+bower/amazeui/less/
+bower/amazeui/vendor/
+bower/amazeui/widget/
+bower/amazeui/.bower.json
+bower/amazeui/bower.json
+bower/amazeui/CHANGELOG.md
+bower/amazeui/gulpfile.js
+bower/amazeui/LICENSE.md
+bower/amazeui/nodemon.json
+bower/amazeui/package.json
+bower/amazeui/README.me
+bower/amazeui/README_EN.md
+bower/handlebars/
+bower/jquery/src/
+bower/jquery/.bower.json
+bower/jquery/bower.json
+bower/jquery/MIT-LICENSE.txt
 
