@@ -1,4 +1,4 @@
-# jquery-wechat ![](./docs/img/wechat.png)  ![](http://img.shields.io/badge/bower_module-v1.0.0-green.svg?style) #
+# jquery-wechat ![](./docs/img/wechat.png)  ![](http://img.shields.io/badge/bower_module-v1.0.2-green.svg?style) #
 
 =============
 
