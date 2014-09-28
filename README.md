@@ -31,7 +31,9 @@ bower install --save jquery-wechat
 #### $.wechat.enable() ####
 
 Type: `function`
+
 Arguments: no
+
 Return: [promise][promise-url]
 
 ```javascript
