@@ -128,8 +128,15 @@
             }
             var deferred = $.Deferred();
             promise = deferred.promise();
-            timeoutID = window.setTimeout(WeChatBridgeTimeout(deferred), 2000);
+            //support ios since WeixinJSBridge initialized faster than Android
+            if (typeof window.WeixinJSBridge !== 'undefined') {
+                window.setTimeout(WeChatBridgeTimeout(deferred), 0);
+                return promise;
+            }
+            //a timeout is needed in case the page running on non-weixin browser
+            timeoutID = window.setTimeout(WeChatBridgeTimeout(deferred), 3000);
 
+            //WeixinJSBridgeReady should be watched since WeixinJSBridge initialized slower on Android
             $doc.on('WeixinJSBridgeReady', function() {
                 window.clearTimeout(timeoutID);
                 WeChatBridgeTimeout(deferred)();
@@ -139,6 +146,11 @@
         },
         destroy: function() {
             $doc.off('WeixinJSBridgeReady');
+            if (bridge && bridge.off) {
+                bridge.off('menu:share:appmessage');
+                bridge.off('menu:share:timeline');
+                bridge.off('menu:share:weibo');
+            }
         },
         toggleMenu: function(toShow) {
             validate();
