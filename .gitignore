@@ -1,6 +1,9 @@
 #npm
 node_modules
 
+#demo
+demo/
+
 #bower
 bower/amazeui/fonts/
 bower/amazeui/js/

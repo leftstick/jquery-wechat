@@ -1,7 +1,13 @@
 (function($) {
     'use strict';
 
-    $.wechat.enable();
+    $.wechat.enable().fail(function() {
+        $('body').addClass('modal-active');
+    });
+
+    $('#modal').on('click', function() {
+        $('body').removeClass('modal-active');
+    });
 
     var isMenuShown = true;
     var isToolbarShown = true;
