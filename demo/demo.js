@@ -34,7 +34,7 @@
 
     $('#share').on('click', function() {
         if (isChanged) {
-            $.wechat.setShareOption({});
+            $.wechat.setShareOption();
             $(this).removeClass('am-btn-primary').addClass('am-btn-default');
         } else {
             $.wechat.setShareOption({
