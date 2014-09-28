@@ -3,6 +3,7 @@ node_modules/
 
 #bower
 demo/bower/
+bower/
 
 #demo
 demo/jquery-wechat.js

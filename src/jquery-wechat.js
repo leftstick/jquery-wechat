@@ -13,6 +13,7 @@
     var promise;
     var bridge;
     var _options = {};
+    var timeoutID;
 
     var defaults = {
         'appid': '',
@@ -96,6 +97,29 @@
 
     };
 
+    var WeChatBridgeTimeout = function(deferred) {
+        return function() {
+            if (typeof window.WeixinJSBridge === 'undefined') {
+                deferred.reject();
+                return;
+            }
+            bridge = window.WeixinJSBridge;
+            bridge.on('menu:share:appmessage', function() {
+                shareFriend($.extend(false, {}, defaults, _options));
+            });
+
+            bridge.on('menu:share:timeline', function() {
+                shareMoment($.extend(false, {}, defaults, _options));
+            });
+
+            bridge.on('menu:share:weibo', function() {
+                shareWeibo($.extend(false, {}, defaults, _options));
+            });
+            deferred.resolve();
+        };
+
+    };
+
     $.wechat = {
         enable: function() {
             if (promise) {
@@ -104,23 +128,11 @@
             }
             var deferred = $.Deferred();
             promise = deferred.promise();
+            timeoutID = window.setTimeout(WeChatBridgeTimeout(deferred), 2000);
 
             $doc.on('WeixinJSBridgeReady', function() {
-                bridge = window.WeixinJSBridge;
-
-                bridge.on('menu:share:appmessage', function() {
-                    shareFriend($.extend(false, {}, defaults, _options));
-                });
-
-                bridge.on('menu:share:timeline', function() {
-                    shareMoment($.extend(false, {}, defaults, _options));
-                });
-
-                bridge.on('menu:share:weibo', function() {
-                    shareWeibo($.extend(false, {}, defaults, _options));
-                });
-
-                deferred.resolve();
+                window.clearTimeout(timeoutID);
+                WeChatBridgeTimeout(deferred)();
             });
 
             return promise;
