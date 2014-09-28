@@ -4,7 +4,7 @@
  *
  *  @author  Howard.Zuo
  *  @data    Sep 27th, 2014
- *  @require jQuery 1.5+
+ *  @require jQuery 1.7+
  *
  **/
 (function(window, document, $) {
