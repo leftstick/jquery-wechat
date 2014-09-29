@@ -30,7 +30,7 @@
         'title': function() {
             return document.title;
         },
-        'callback': function(response) {
+        'callback': function() {
             //do nothing
         }
     };
@@ -64,8 +64,8 @@
             'desc': getValue(opts, 'desc'),
             'title': getValue(opts, 'title')
         }, function(res) {
-                opts.callback(res.err_msg);
-            });
+            opts.callback(res.err_msg);
+        });
 
     };
 
@@ -80,8 +80,8 @@
             'desc': getValue(opts, 'desc'),
             'title': getValue(opts, 'title')
         }, function(res) {
-                opts.callback(res.err_msg);
-            });
+            opts.callback(res.err_msg);
+        });
 
     };
 
@@ -92,12 +92,12 @@
             'content': getValue(opts, 'desc'),
             'url': getValue(opts, 'link'),
         }, function(res) {
-                opts.callback(res.err_msg);
-            });
+            opts.callback(res.err_msg);
+        });
 
     };
 
-    var WeChatBridgeTimeout = function(deferred) {
+    var weChatBridgeTimeout = function(deferred) {
         return function() {
             if (typeof window.WeixinJSBridge === 'undefined') {
                 deferred.reject();
@@ -130,16 +130,16 @@
             promise = deferred.promise();
             //support ios since WeixinJSBridge initialized faster than Android
             if (typeof window.WeixinJSBridge !== 'undefined') {
-                window.setTimeout(WeChatBridgeTimeout(deferred), 0);
+                window.setTimeout(weChatBridgeTimeout(deferred), 0);
                 return promise;
             }
             //a timeout is needed in case the page running on non-weixin browser
-            timeoutID = window.setTimeout(WeChatBridgeTimeout(deferred), 3000);
+            timeoutID = window.setTimeout(weChatBridgeTimeout(deferred), 3000);
 
             //WeixinJSBridgeReady should be watched since WeixinJSBridge initialized slower on Android
             $doc.on('WeixinJSBridgeReady', function() {
                 window.clearTimeout(timeoutID);
-                WeChatBridgeTimeout(deferred)();
+                weChatBridgeTimeout(deferred)();
             });
 
             return promise;
@@ -150,6 +150,9 @@
                 bridge.off('menu:share:appmessage');
                 bridge.off('menu:share:timeline');
                 bridge.off('menu:share:weibo');
+            }
+            if (promise) {
+                promise = undefined;
             }
         },
         toggleMenu: function(toShow) {
