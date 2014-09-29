@@ -19,7 +19,9 @@
     "tests"
   ],
   "dependencies": {
-    "jquery": "~2.1.1",
+    "jquery": "~2.1.1"
+  },
+  "devDependencies": {
     "amazeui": "~1.0.0-beta2"
   }
 }
