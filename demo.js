@@ -12,18 +12,46 @@
 
     toggleUI(true);
 
+    $('#destroy button').prop('disabled', true);
     $.wechat.enable().fail(function() {
         $('body').addClass('modal-active');
     }).done(function() {
         toggleUI(false);
         bind();
+        var isEnabled = true;
+        $('#destroy button').prop('disabled', false);
+        $('#destroy').on('click', function() {
+            var element = $(this);
+            var $on = element.find('.enable');
+            var $off = element.find('.destroy');
+            if (isEnabled) {
+                $.wechat.destroy().done(function() {
+                    unbind();
+                    toggleUI(true);
+                    $('button.am-btn.off').removeClass('am-btn-primary').addClass('am-btn-default');
+                    $('button.am-btn.on').removeClass('am-btn-default').addClass('am-btn-primary');
+                    isMenuShown = true;
+                    isToolbarShown = true;
+                    isReset = true;
+                });
+                $on.removeClass('am-btn-primary').addClass('am-btn-default');
+                $off.removeClass('am-btn-default').addClass('am-btn-primary');
+            } else {
+                $.wechat.enable().done(function() {
+                    bind();
+                    toggleUI(false);
+                });
+                $on.removeClass('am-btn-default').addClass('am-btn-primary');
+                $off.removeClass('am-btn-primary').addClass('am-btn-default');
+            }
+            isEnabled = !isEnabled;
+        });
     });
 
     $('#modal').on('click', function() {
         $('body').removeClass('modal-active');
     });
 
-    var isEnabled = true;
     var isMenuShown = true;
     var isToolbarShown = true;
     var isReset = true;
@@ -108,33 +136,6 @@
         $('#share').off('click');
         $('#close').off('click');
     };
-
-    $('#destroy').on('click', function() {
-        var element = $(this);
-        var $on = element.find('.enable');
-        var $off = element.find('.destroy');
-        if (isEnabled) {
-            $.wechat.destroy().done(function() {
-                unbind();
-                toggleUI(true);
-                $('button.am-btn.off').removeClass('am-btn-primary').addClass('am-btn-default');
-                $('button.am-btn.on').removeClass('am-btn-default').addClass('am-btn-primary');
-                isMenuShown = true;
-                isToolbarShown = true;
-                isReset = true;
-            });
-            $on.removeClass('am-btn-primary').addClass('am-btn-default');
-            $off.removeClass('am-btn-default').addClass('am-btn-primary');
-        } else {
-            $.wechat.enable().done(function() {
-                bind();
-                toggleUI(false);
-            });
-            $on.removeClass('am-btn-default').addClass('am-btn-primary');
-            $off.removeClass('am-btn-primary').addClass('am-btn-default');
-        }
-        isEnabled = !isEnabled;
-    });
 
     $.wechat.getNetworkType().done(function(response) {
         $('#network').text(response.split(':')[1]);
