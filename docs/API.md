@@ -187,7 +187,7 @@ $.wechat.preview({
             });
 ```
 
-![](./img/qrcode.png)
+![](./img/preview.png)
 
 
 [promise-url]: http://api.jquery.com/Types/#Promise
