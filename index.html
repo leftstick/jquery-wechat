@@ -55,18 +55,38 @@
                         <div class="col-lg-3 col-md-6 col-sm-12 detail-mb">
                             <h3 class="detail-h3">
                             <i class="am-icon-globe am-icon-sm"></i>
-                            Network
+                            Network Status
                             </h3>
                             <p id="network" class="detail-p"><i class="am-icon-spinner am-icon-spin"></i></p>
+                        </div>
+                        <div class="col-lg-3 col-md-6 col-sm-12 detail-mb">
+                            <h3 class="detail-h3">
+                            <i class="am-icon-qrcode am-icon-sm"></i>
+                            Goto ScanQRcode page
+                            </h3>
+                            <p class="detail-p">
+                            <button id="scan" type="button" class="am-btn am-btn-default am-btn-block" >Go</button>
+                            </p>
+                        </div>
+                        <div class="col-lg-3 col-md-6 col-sm-12 detail-mb">
+                            <h3 class="detail-h3">
+                            <i class="am-icon-image am-icon-sm"></i>
+                            Preview Image
+                            </h3>
+                            <p class="detail-p">
+                            <img src="img/pic001.jpg" class="am-img-bdrs" style="width:50%;">
+                            <button id="preview" type="button" class="am-btn am-btn-secondary am-btn-block" >Preview</button>
+                            </p>
                         </div>
                         <div class="col-lg-3 col-md-6 col-sm-12 detail-mb">
                             <h3 class="detail-h3">
                             <i class="am-icon-send-o am-icon-sm"></i>
                             Change Share Option
                             </h3>
-                            <p class="detail-p">
-                            <button id="share" type="button" class="am-btn am-btn-default am-btn-block" >Change</button>
-                            </p>
+                            <div id="share" class="am-btn-group am-btn-group-justify switch">
+                                <button type="button" class="off am-btn am-btn-default">Set</button>
+                                <button type="button" class="on am-btn am-btn-primary">Reset</button>
+                            </div>
                         </div>
                         <div class="col-lg-3 col-md-6 col-sm-12 detail-mb">
                             <h3 class="detail-h3">
@@ -76,6 +96,16 @@
                             <p class="detail-p">
                             <button id="close" type="button" class="am-btn am-btn-danger am-btn-block">Close</button>
                             </p>
+                        </div>
+                        <div class="col-lg-3 col-md-6 col-sm-12 detail-mb">
+                            <h3 class="detail-h3">
+                            <i class="am-icon-stop am-icon-sm"></i>
+                            Destroy wechat functionality
+                            </h3>
+                            <div id="destroy" class="am-btn-group am-btn-group-justify switch">
+                                <button type="button" class="destroy am-btn am-btn-default">Off</button>
+                                <button type="button" class="enable am-btn am-btn-primary">On</button>
+                            </div>
                         </div>
                     </div>
                 </div>
