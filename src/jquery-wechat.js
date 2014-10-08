@@ -7,55 +7,15 @@
  *  @require jQuery 1.7+
  *
  **/
-(function(window, document, $) {
+(function(global, document, $) {
     'use strict';
-    var $doc = $(document);
-    var promise;
-    var bridge;
-    var _options = {};
-    var timeoutID;
 
-    var defaults = {
-        'appid': '',
-        'img_url': '',
-        'img_width': '60',
-        'img_height': '60',
-        'link': function() {
-            return window.location.toString();
-        },
-        'desc': function() {
-            var $desc = $('head meta[name="description"]');
-            return $desc.length > 0 ? $desc.attr('content') : '';
-        },
-        'title': function() {
-            return document.title;
-        },
-        'callback': function() {
-            //do nothing
-        }
+    var _this = {
+        options: {}
     };
-
-    var validate = function() {
-        if (typeof promise === 'undefined') {
-            alert('You have to enable wechat first');
-            throw new Error('You have to enable wechat first');
-        }
-    };
-
-    var isFunction = function(obj) {
-        return typeof obj === 'function';
-    };
-
-    var getValue = function(opts, key) {
-
-        return isFunction(opts[key]) ? opts[key]() : opts[key];
-    };
-
 
     var shareFriend = function(opts) {
-        validate();
-
-        bridge.invoke('sendAppMessage', {
+        _this.bridge.invoke('sendAppMessage', {
             'appid': getValue(opts, 'appid'),
             'img_url': getValue(opts, 'img_url'),
             'img_width': getValue(opts, 'img_width'),
@@ -70,15 +30,13 @@
     };
 
     var shareMoment = function(opts) {
-        validate();
-
-        bridge.invoke('shareTimeline', {
+        _this.bridge.invoke('shareTimeline', {
             'img_url': getValue(opts, 'img_url'),
             'img_width': getValue(opts, 'img_width'),
             'img_height': getValue(opts, 'img_height'),
             'link': getValue(opts, 'link'),
-            'desc': getValue(opts, 'desc'),
-            'title': getValue(opts, 'title')
+            'desc': getValue(opts, 'title'),
+            'title': getValue(opts, 'title') + ' - ' + getValue(opts, 'desc')
         }, function(res) {
             opts.callback(res.err_msg);
         });
@@ -86,126 +44,208 @@
     };
 
     var shareWeibo = function(opts) {
-        validate();
-
-        bridge.invoke('shareWeibo', {
+        _this.bridge.invoke('shareWeibo', {
             'content': getValue(opts, 'desc'),
             'url': getValue(opts, 'link'),
         }, function(res) {
             opts.callback(res.err_msg);
         });
+    };
 
+    var shareEmail = function(opts) {
+        _this.bridge.invoke('sendEmail', {
+            'content': getValue(opts, 'desc') || getValue(opts, 'link')
+        }, function(res) {
+            opts.callback(res.err_msg);
+        });
+    };
+
+    var immediateActions = {
+        network: 'getNetworkType',
+        hideToolbar: 'hideToolbar',
+        showToolbar: 'showToolbar',
+        hideOptionMenu: 'hideOptionMenu',
+        showOptionMenu: 'showOptionMenu',
+        closeWebView: 'closeWindow', //Close current webview
+        scanQRCode: 'scanQRCode', //goto QRcode page
+        preview: 'imagePreview' //preview/check image
+    };
+
+    var listeners = {
+        events: {
+            friend: 'menu:share:appmessage',
+            moment: 'menu:share:timeline',
+            weibo: 'menu:share:weibo',
+            email: 'menu:share:email' //share to email
+        },
+        actions: {
+            friend: shareFriend,
+            moment: shareMoment,
+            weibo: shareWeibo,
+            email: shareEmail
+        }
+    };
+
+    var $doc = $(document);
+
+    var defaultOpts = {
+        'appid': '',
+        'img_url': '',
+        'img_width': '60',
+        'img_height': '60',
+        'link': function() {
+            return global.location.toString();
+        },
+        'desc': function() {
+            var $desc = $('head meta[name="description"]');
+            return $desc.length > 0 ? $desc.attr('content') : '';
+        },
+        'title': function() {
+            return document.title;
+        },
+        'callback': function() {
+            //do nothing
+        }
+    };
+
+    var isFunction = function(obj) {
+        return typeof obj === 'function';
+    };
+
+    var getValue = function(opts, key) {
+        return isFunction(opts[key]) ? opts[key]() : opts[key];
     };
 
     var weChatBridgeTimeout = function(deferred) {
         return function() {
-            if (typeof window.WeixinJSBridge === 'undefined') {
+            if (typeof global.WeixinJSBridge === 'undefined') {
                 deferred.reject();
                 return;
             }
-            bridge = window.WeixinJSBridge;
-            bridge.on('menu:share:appmessage', function() {
-                shareFriend($.extend(false, {}, defaults, _options));
-            });
-
-            bridge.on('menu:share:timeline', function() {
-                shareMoment($.extend(false, {}, defaults, _options));
-            });
-
-            bridge.on('menu:share:weibo', function() {
-                shareWeibo($.extend(false, {}, defaults, _options));
+            _this.bridge = global.WeixinJSBridge;
+            $.each(listeners.events, function(key, value) {
+                _this.bridge.on(value, function() {
+                    if (_this.options.bind) {
+                        listeners.actions[key]($.extend(false, {}, defaultOpts, _this.options));
+                    } else {
+                        listeners.actions[key](defaultOpts);
+                    }
+                });
             });
             deferred.resolve();
         };
 
     };
 
+    var wrapperOperation = function(action, data) {
+        data = data || {};
+        var deferred = $.Deferred();
+        var pro = deferred.promise();
+        var callTimeout;
+        if (typeof _this.promise === 'undefined') {
+            global.setTimeout(function() {
+                deferred.reject(new Error('You have to enable wechat functionality first'));
+            }, 0);
+            return pro;
+        }
+
+        if (!immediateActions[action]) {
+            global.setTimeout(function() {
+                deferred.reject(new Error('Wrong action'));
+            }, 0);
+            return pro;
+        }
+        _this.promise.done(function() {
+            //this is workaround since the callback passed into WeixinJSBridge.call 
+            //doesn't work properly
+            //such as: toolbar, optionMenu
+            callTimeout = global.setTimeout(function() {
+                deferred.resolve();
+            }, 1000);
+
+            _this.bridge.invoke(immediateActions[action], data, function(e) {
+                if (callTimeout) {
+                    global.clearTimeout(callTimeout);
+                }
+                deferred.resolve(e.err_msg);
+            });
+
+        });
+
+        return pro;
+    };
+
     $.wechat = {
         enable: function() {
-            if (promise) {
+            if (_this.promise) {
+                //always expose one instance
                 console.warn('wechat already enabled');
-                return promise;
+                return _this.promise;
             }
             var deferred = $.Deferred();
-            promise = deferred.promise();
+            _this.promise = deferred.promise();
             //support ios since WeixinJSBridge initialized faster than Android
-            if (typeof window.WeixinJSBridge !== 'undefined') {
-                window.setTimeout(weChatBridgeTimeout(deferred), 0);
-                return promise;
+            if (typeof global.WeixinJSBridge !== 'undefined') {
+                global.setTimeout(weChatBridgeTimeout(deferred), 0);
+                return _this.promise;
             }
             //a timeout is needed in case the page running on non-weixin browser
-            timeoutID = window.setTimeout(weChatBridgeTimeout(deferred), 3000);
+            _this.timeoutID = global.setTimeout(weChatBridgeTimeout(deferred), 3000);
 
             //WeixinJSBridgeReady should be watched since WeixinJSBridge initialized slower on Android
             $doc.on('WeixinJSBridgeReady', function() {
-                window.clearTimeout(timeoutID);
+                global.clearTimeout(_this.timeoutID);
                 weChatBridgeTimeout(deferred)();
             });
 
-            return promise;
+            return _this.promise;
         },
         destroy: function() {
+            var deferred = $.Deferred();
+            var pro = deferred.promise();
+            $.wechat.showMenu();
+            $.wechat.showToolbar();
+            $.wechat.resetShareOption();
+            if (_this.promise) {
+                delete _this.promise;
+            }
             $doc.off('WeixinJSBridgeReady');
-            if (bridge && bridge.off) {
-                bridge.off('menu:share:appmessage');
-                bridge.off('menu:share:timeline');
-                bridge.off('menu:share:weibo');
-            }
-            if (promise) {
-                promise = undefined;
-            }
-        },
-        toggleMenu: function(toShow) {
-            validate();
-            promise.done(function() {
-                bridge.call(toShow ? 'showOptionMenu' : 'hideOptionMenu');
-            });
+            global.setTimeout(deferred.resolve, 0);
+            return pro;
         },
         showMenu: function() {
-            this.toggleMenu(true);
+            return wrapperOperation('showOptionMenu');
         },
         hideMenu: function() {
-            this.toggleMenu(false);
-        },
-        toggleToolbar: function(toShow) {
-            validate();
-            promise.done(function() {
-                bridge.call(toShow ? 'showToolbar' : 'hideToolbar');
-            });
+            return wrapperOperation('hideOptionMenu');
         },
         showToolbar: function() {
-            this.toggleToolbar(true);
+            return wrapperOperation('showToolbar');
         },
         hideToolbar: function() {
-            this.toggleToolbar(false);
+            return wrapperOperation('hideToolbar');
         },
         getNetworkType: function() {
-            var deferred = $.Deferred();
-            promise.done(function() {
-                bridge.call('getNetworkType', {}, function(e) {
-                    deferred.resolve(e.err_msg);
-                });
-            });
-            return deferred.promise();
+            return wrapperOperation('network');
         },
         closeWindow: function() {
-            var deferred = $.Deferred();
-            promise.done(function() {
-                bridge.call('closeWindow', {}, function(e) {
-                    if (e.err_msg === 'close_window:ok') {
-                        deferred.resolve();
-                        return;
-                    }
-                    if (e.err_msg === 'close_window:error') {
-                        deferred.reject();
-                        return;
-                    }
-                });
-            });
-            return deferred.promise();
+            return wrapperOperation('closeWebView');
+        },
+        scanQRcode: function() {
+            return wrapperOperation('scanQRCode');
+        },
+        preview: function(imgData) {
+            return wrapperOperation('preview', imgData);
         },
         setShareOption: function(options) {
-            _options = options;
+            if (!options) {
+                return;
+            }
+            _this.options = $.extend(false, {}, options);
+            _this.options.bind = true;
+        },
+        resetShareOption: function() {
+            _this.options.bind = false;
         }
     };
 
