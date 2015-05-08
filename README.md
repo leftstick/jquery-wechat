@@ -2,6 +2,8 @@
 
 =============
 
+> This plugin is deprecated since wechat-team introduced a brand new way to achieve those functionalities. See [微信JS-SDK说明文档](http://mp.weixin.qq.com/wiki/7/aaa137b55fb2e0456bf8dd9148dd613f.html)
+
 A jquery plugin which provides handy functions for `wechat`.
 
 As we know, `wechat` is absolutely a successful mobile app in business. But as a developer, i would say, the documentation is worst that i've ever seen in the popular apps.
